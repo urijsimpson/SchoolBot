@@ -1,7 +1,7 @@
 import telebot
 import sys
-#from telebot import TeleBot,  types
-#types = telebot.types
+from telebot import types
+
 import sqlite3
 from my_token import chat_id, token
 
@@ -30,7 +30,15 @@ def get_record(conn, sSql):
     try:
         c = conn.cursor()
         c.execute(sSql)
-        return c.fetchone()
+        return c.fetchone()[0]
+    except sqlite3.DatabaseError as e:
+        print(e)
+
+def get_records(conn, sSql):
+    try:
+        c = conn.cursor()
+        c.execute(sSql)
+        return c.fetchall()
     except sqlite3.DatabaseError as e:
         print(e)
 
@@ -53,6 +61,7 @@ lSql.append(""" CREATE TABLE IF NOT EXISTS timetable (id integer PRIMARY KEY,
 '''
 lSql.append(""" CREATE TABLE IF NOT EXISTS subjects (subject_id integer PRIMARY KEY,
                                                      subject_name text not NULL,
+                                                     subject_tutor text
                                                      ); """)
 '''
 Справочник дней недели Days of weeek
@@ -140,6 +149,7 @@ def fill_tables(conn):
 '''
 Проверим, есть ли уже записи в БД
 '''
+#print(get_record(conn, 'select count(*) from classes'))
 iRecordCount = int(get_record(conn, 'select count(*) from classes'))
 if iRecordCount == 0:
     '''
@@ -151,6 +161,34 @@ if iRecordCount == 0:
         print("Something went wrong")
         sys.exit(0)
 
+
+'''
+Пример, как получить записи из базы
+'''
+print('****')
+print("Будут выбраны ВСЕ записи из представления v_timetable")
+print('****')
+records = get_records(conn, 'select id, class, subject, tutor, lesson_index, day_of_week from v_timetable')
+for record in records:
+    if record:
+        print(record)
+
+
+'''
+Пример, как получить записи по определенному классу и дню недели из базы
+'''
+sClassName = '10 а'
+sDowName = 'Tuesday'
+
+print('****')
+print(f"Будут выбраны предметы для класса {sClassName} и дня недели {sDowName}")
+print('****')
+records = get_records(conn, f"select id, class, subject, tutor, lesson_index, day_of_week from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+for record in records:
+    if record:
+        print(record)
+
+print('')
 
 @bot.message_handler(commands=['start'])
 def start(message):
