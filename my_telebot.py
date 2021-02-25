@@ -1,6 +1,7 @@
 import telebot
-import sys
+import sys, io
 from telebot import types
+
 
 import sqlite3
 from my_token import chat_id, token
@@ -178,6 +179,22 @@ for record in records:
 Пример, как получить записи по определенному классу и дню недели из базы
 '''
 sClassName = '10 а'
+sDowName = 'Tuesday'
+
+print('****')
+print(f"Будут выбраны предметы для класса {sClassName} и дня недели {sDowName}")
+print('****')
+records = get_records(conn, f"select id, class, subject, tutor, lesson_index, day_of_week from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+for record in records:
+    if record:
+        print(record)
+
+print('')
+
+'''
+Пример, как получить записи по определенному классу и дню недели из базы
+'''
+sClassName = '10 б'
 sDowName = 'Tuesday'
 
 print('****')
