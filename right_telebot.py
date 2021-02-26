@@ -1,3 +1,34 @@
+"""
+'''
+Пример, как получить записи из базы
+'''
+print('****')
+print("Будут выбраны ВСЕ записи из представления v_timetable")
+print('****')
+records = get_records(conn, 'select id, class, subject, tutor, lesson_index, day_of_week from v_timetable')
+for record in records:
+    if record:
+        print(record)
+
+
+'''
+Пример, как получить записи по определенному классу и дню недели из базы
+'''
+sClassName = '10 а'
+sDowName = 'Tuesday'
+
+print('****')
+print(f"Будут выбраны предметы для класса {sClassName} и дня недели {sDowName}")
+print('****')
+records = get_records(conn, f"select id, class, subject, tutor, lesson_index, day_of_week from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+for record in records:
+    if record:
+        print(record)
+
+print('')
+'''
+"""
+
 import sys
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
@@ -91,7 +122,7 @@ class StringParser():
             if iExists == 0:
                 return [f"No timetable for {sClassName} to {sDow}"]
             else:
-                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and day_of_week = '{sDow}'")
 
                 for record in c.fetchall():
                     lRecordList.append(record)
@@ -219,35 +250,6 @@ if iRecordCount == 0:
     else:
         print("Something went wrong")
         sys.exit(0)
-
-
-'''
-Пример, как получить записи из базы
-'''
-print('****')
-print("Будут выбраны ВСЕ записи из представления v_timetable")
-print('****')
-records = get_records(conn, 'select id, class, subject, tutor, lesson_index, day_of_week from v_timetable')
-for record in records:
-    if record:
-        print(record)
-
-
-'''
-Пример, как получить записи по определенному классу и дню недели из базы
-'''
-sClassName = '10 а'
-sDowName = 'Tuesday'
-
-print('****')
-print(f"Будут выбраны предметы для класса {sClassName} и дня недели {sDowName}")
-print('****')
-records = get_records(conn, f"select id, class, subject, tutor, lesson_index, day_of_week from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
-for record in records:
-    if record:
-        print(record)
-
-print('')
 
 
 # Enable logging

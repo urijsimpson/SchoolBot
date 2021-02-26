@@ -206,6 +206,16 @@ for record in records:
 
 print('')
 
+def DOW():
+    DOW_markup = types.ReplyKeyboardMarkup()
+    Monday = types.KeyboardButton('понедельник')
+    Tuesday = types.KeyboardButton('вторник')
+    Wednesdey = types.KeyboardButton('среда')
+    Thursday = types.KeyboardButton('четверг')
+    Friday = types.KeyboardButton('пятница')
+    DOW_markup.add(Monday, Tuesday, Wednesdey, Thursday, Friday)
+    return DOW_markup
+
 
 def class_grade_markup():
     grade_markup = types.ReplyKeyboardMarkup()
@@ -229,16 +239,19 @@ def class_letter_markup():
     button_d = types.KeyboardButton('д')
     button_e = types.KeyboardButton('е')
     button_j = types.KeyboardButton('ж')
-    letter_markup.add(button_a, button_b, button_g, button_d, button_j, button_e)
+    letter_markup.add(button_a, button_b, button_v, button_g, button_d, button_j, button_e)
     return letter_markup
 
-@bot.message_handler(commands='start')
+@bot.message_handler(commands=['start'])
 def grade_select(message):
     bot.send_message(message.chat.id, '..', reply_markup=class_grade_markup())
 
-@bot.message_handler(content_types='text')
+@bot.message_handler(content_types=['text'])
 def letter_select(message):
+    bot.send_message(message.chat.id, '..' ,reply_markup=class_letter_markup())
 
-
+@bot.message_handler(content_types=['text'])
+def day_of_week(message):
+    DOW()
 
 bot.polling(none_stop=True)
