@@ -43,6 +43,36 @@ def get_records(conn, sSql):
         print(e)
 
 
+
+class StringParser():
+    def __init__(self):
+        pass
+
+    @classmethod
+    def get_class(cls, sString):
+        try:
+            if sString.split()[0].isdecimal() and int(sString.split()[0]) > 0 and int(sString.split()[0]) < 12:
+                sClassName = f"{sString.split()[0]} {sString.split()[1]}"
+                return sClassName
+            else:
+                return -1
+
+        except ValueError as err:
+            return -2
+        except OSError as err:
+            return -3
+
+
+
+    @classmethod
+    def get_dow(cls, sString):
+        return
+
+    @classmethod
+    def get_data(cls, sString):
+        return
+
+
 conn = create_conection("timetable.db")
 
 lSql = []
