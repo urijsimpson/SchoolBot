@@ -1,11 +1,15 @@
 import telebot
 import sys
+import logging
 from telebot import types
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from my_token import token, chat_id
+sMyToken = token
 
 import sqlite3
 from my_token import chat_id, token
 
-bot = telebot.TeleBot(token)
+#bot = telebot.TeleBot(token)
 
 
 
@@ -45,11 +49,12 @@ def get_records(conn, sSql):
 
 
 class StringParser():
-    def __init__(self):
+    def __init__(self, connection):
+        self.conn = connection
         pass
 
-    @classmethod
-    def get_class(cls, sString):
+    #@classmethod
+    def get_class(self, sString):
         try:
             if sString.split()[0].isdecimal() and int(sString.split()[0]) > 0 and int(sString.split()[0]) < 12:
                 sClassName = f"{sString.split()[0]} {sString.split()[1]}"
@@ -64,13 +69,49 @@ class StringParser():
 
 
 
-    @classmethod
-    def get_dow(cls, sString):
+    #@classmethod
+    def get_dow(self, sString):
         return
 
-    @classmethod
-    def get_data(cls, sString):
-        return
+    #@classmethod
+    def get_data(self, sString):
+        lRecordList = []
+        lRecordList.clear()
+        try:
+            #print(sString.split()[1])
+            #print(sString.split()[2])
+            #print(sString.split()[3])
+            if sString.split()[1].isdecimal():
+                if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
+                    sClassName = f"{sString.split()[1]} {sString.split()[2]}"
+                else:
+                    return "Class grade must be between 1 - 11"
+            else:
+                return ["Wrong format"]
+            c = self.conn.cursor()
+            c.execute(f"select count(*) from v_timetable where class = '{sClassName}'")
+            iExists = int(c.fetchone()[0])
+            if iExists == 0:
+                return [f"Class {sClassName} doesn't exists in timetable"]
+            else:
+                sDow = sString.split()[3]
+
+            c.execute(f"select count(*) from  v_timetable where class = '{sClassName}' and upper(day_of_week) = upper('{sDow}')")
+
+            iExists = int(c.fetchone()[0])
+            if iExists == 0:
+                return [f"No timetable for {sClassName} to {sDow}"]
+            else:
+                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+
+                for record in c.fetchall():
+                    lRecordList.append(record)
+                return lRecordList
+
+        except ValueError as err:
+            return ("ERROR", err)
+        except OSError as err:
+            return  ("ERROR", err)
 
 
 conn = create_conection("timetable.db")
@@ -179,7 +220,6 @@ def fill_tables(conn):
 '''
 Проверим, есть ли уже записи в БД
 '''
-#print(get_record(conn, 'select count(*) from classes'))
 iRecordCount = int(get_record(conn, 'select count(*) from classes'))
 if iRecordCount == 0:
     '''
@@ -220,6 +260,7 @@ for record in records:
 
 print('')
 
+'''
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.reply_to(message, 'to continue type \'keyboard\'')
@@ -263,3 +304,79 @@ def KeyBoartBtn(message):
 
 
 bot.polling()
+'''
+
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, filename='telebot.log')
+
+logger = logging.getLogger(__name__)
+
+# Define a few command handlers. These usually take the two arguments update and
+# context. Error handlers also receive the raised TelegramError object in error.
+
+def get(update, context):
+    """Send a message when the command /start is issued."""
+    myParser = StringParser(create_conection("timetable.db"))
+    tTimeTable = myParser.get_data(update.message.text)
+    sResultRecord = ''
+    if tTimeTable:
+        for sRecord in tTimeTable:
+            sCurentRecord, sCurentRecord = '',''
+            for sField in sRecord:
+                sCurentField = str(sField)
+                sCurentRecord = f"{sCurentRecord} {sCurentField}"
+
+            update.message.reply_text(sCurentRecord)
+    #print(context.args)
+
+
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    print("Received HELP query")
+    update.message.reply_text('/get <N> <L> where N - class grade L - class letter')
+
+
+def echo(update, context):
+    """Echo the user message."""
+    update.message.reply_text(update.message.text)
+
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+
+def author(update, context):
+    sMessage = 'Jury A Kondratyev'
+    update.message.reply_text(sMessage)
+
+def main():
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    token = sMyToken
+    updater = Updater(token, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("get", get))
+    dp.add_handler(CommandHandler("help", help))
+
+    # on noncommand i.e message - echo the message on Telegram
+    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
+
+
+if __name__ == '__main__':
+    main()
