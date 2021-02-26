@@ -1,13 +1,12 @@
 import telebot
 import sys, io
 from telebot import types
-
-
-import sqlite3
 from my_token import token
 
-bot = telebot.TeleBot(token)
+import sqlite3
 
+
+bot = telebot.TeleBot(token)
 
 
 def create_conection(datafile):
@@ -208,143 +207,37 @@ for record in records:
 print('')
 
 
+def class_grade_markup():
+    grade_markup = types.ReplyKeyboardMarkup()
+    Button_5 = types.KeyboardButton('5')
+    Button_6 = types.KeyboardButton('6')
+    Button_7 = types.KeyboardButton('7')
+    Button_8 = types.KeyboardButton('8')
+    Button_9 = types.KeyboardButton('9')
+    Button_10 = types.KeyboardButton('10')
+    Button_11 = types.KeyboardButton('11')
+    grade_markup.add(Button_5, Button_6, Button_7, Button_8, Button_9, Button_10, Button_11)
+    return grade_markup
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.send_message(message.chat.id, 'выберите класс', reply_markup=class_grade_keyboard())
-    if message.text == '5':
-        bot.register_next_step_handler(message, class_letter(message))
 
-    elif message.text == '6':
-        bot.register_next_step_handler(message, class_letter(message))
+def class_letter_markup():
+    letter_markup = types.ReplyKeyboardMarkup()
+    button_a = types.KeyboardButton('а')
+    button_b = types.KeyboardButton('б')
+    button_v = types.KeyboardButton('в')
+    button_g = types.KeyboardButton('г')
+    button_d = types.KeyboardButton('д')
+    button_e = types.KeyboardButton('е')
+    button_j = types.KeyboardButton('ж')
+    letter_markup.add(button_a, button_b, button_g, button_d, button_j, button_e)
+    return letter_markup
 
-    elif message.text == '7':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '8':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '9':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '10':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '11':
-        bot.register_next_step_handler(message, class_letter(message))
-
-def class_grade_keyboard():
-    markup = types.ReplyKeyboardMarkup()
-    KeyBtnGrade_5 = types.KeyboardButton('5')
-    KeyBtnGrade_6 = types.KeyboardButton('6')
-    KeyBtnGrade_7 = types.KeyboardButton('7')
-    KeyBtnGrade_8 = types.KeyboardButton('8')
-    KeyBtnGrade_9 = types.KeyboardButton('9')
-    KeyBtnGrade_10 = types.KeyboardButton('10')
-    KeyBtnGrade_11 = types.KeyboardButton('11')
-    markup.add(KeyBtnGrade_5, KeyBtnGrade_6, KeyBtnGrade_7, KeyBtnGrade_8, KeyBtnGrade_9, KeyBtnGrade_10, KeyBtnGrade_11)
-
-    return markup
+@bot.message_handler(commands='start')
+def grade_select(message):
+    bot.send_message(message.chat.id, '..', reply_markup=class_grade_markup())
 
 @bot.message_handler(content_types='text')
-def class_letter(message):
-    bot.send_message(message.chat.id, 'выберите букву класса', reply_markup=class_letter_keyboard(message))
-    if message.text == 'а':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'б':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'в':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'г':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'д':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'е':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'ж':
-        bot.register_next_step_handler(message, day(message))
-
-
-@bot.message_handler(content_types='text')
-def day(message):
-    bot.send_message(message.chat.id, 'выберите день недели', reply_markup=day_of_week())
-
-
-def day_of_week():
-    markup = types.ReplyKeyboardMarkup()
-    KeyBtnMonday = types.KeyboardButton('понедельник')
-    KeyBtnTuesday = types.KeyboardButton('вторник')
-    KeyBtnWednesday = types.KeyboardButton('среда')
-    KeyBtnThursday = types.KeyboardButton('четверг')
-    KeyBtnFriday = types.KeyboardButton('пятница')
-    markup.add(KeyBtnMonday, KeyBtnTuesday, KeyBtnWednesday, KeyBtnThursday, KeyBtnFriday)
-
-    return markup
-
-
-def class_letter_keyboard(message):
-    markup = types.ReplyKeyboardMarkup()
-    if message.text == '5':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        KeyBtnLetter_d = types.KeyboardButton('д')
-        KeyBtnLetter_e = types.KeyboardButton('е')
-        KeyBtnLetter_j = types.KeyboardButton('ж')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g, KeyBtnLetter_d, KeyBtnLetter_e, KeyBtnLetter_j)
-
-    elif message.text == '6':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        KeyBtnLetter_d = types.KeyboardButton('д')
-        KeyBtnLetter_e = types.KeyboardButton('е')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g, KeyBtnLetter_d, KeyBtnLetter_e)
-
-    elif message.text == '7':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '8':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g)
-
-    elif message.text == '9':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '10':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '11':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b)
-
-
-    return markup
-
-
-
-
+def letter_select(message):
 
 
 
