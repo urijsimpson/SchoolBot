@@ -1,7 +1,7 @@
 import sys
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-from my_token import token, chat_id
+from my_token import token #, chat_id
 sMyToken = token
 
 import sqlite3
@@ -302,6 +302,7 @@ def main():
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("get", get))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("author", author))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, echo))
