@@ -277,6 +277,10 @@ def get(update, context):
 
             update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
 
+def start(update, context):
+    """Send a message when the command /start is issued."""
+    update.message.reply_text('Started. To geh help send /help')
+
 def help(update, context):
     """Send a message when the command /help is issued."""
     print("Received HELP query")
@@ -310,6 +314,7 @@ def main():
 
 
     # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("get", get))
     dp.add_handler(CommandHandler("help", help))
     dp.add_handler(CommandHandler("author", author))
@@ -320,18 +325,20 @@ def main():
     # log all errors
     dp.add_error_handler(error)
 
-    # set commands
-    updater.bot.set_my_commands([
-        ('author', 'Show Author'),
-        ('get', 'Get grade to class, for ex: 10 a tuesday - show timetable for 10 a on tuesday'),
-        ('help', 'Shows HELP'),
-    ])
     # Start the Bot
     updater.start_polling()
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
+
+    # set commands
+    updater.bot.set_my_commands([
+        ('author', 'Show Author'),
+        ('get', 'Get grade to class, for ex: 10 a tuesday - show timetable for 10 a on tuesday'),
+        ('help', 'Shows HELP'),
+    ])
+
     updater.idle()
 
 
