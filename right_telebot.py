@@ -236,7 +236,6 @@ def fill_tables(conn):
 
     except:
         return False
-
 '''
 Проверим, есть ли уже записи в БД
 '''
