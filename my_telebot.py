@@ -4,7 +4,7 @@ from telebot import types
 
 
 import sqlite3
-from my_token import chat_id, token
+from my_token import token
 
 bot = telebot.TeleBot(token)
 
@@ -209,44 +209,57 @@ print('')
 
 @bot.message_handler(commands=['start'])
 def start(message):
-    bot.reply_to(message, 'to continue type \'keyboard\'')
+    bot.send_message(message.chat.id, 'выберите класс', reply_markup=class_grade_keyboard())
+    if message.text == '5':
+        bot.register_next_step_handler(message, class_letter(message))
 
+    elif message.text == '6':
+        bot.register_next_step_handler(message, class_letter(message))
 
-@bot.message_handler(commands=['keyboard'])
-def KeyBoardWelc(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('10')
-    button2 = types.KeyboardButton('9')
-    button3 = types.KeyboardButton('8')
-    markup.add(button1, button2, button3)
-    bot.send_message(chat_id, 'select class digit', reply_markup=markup)
-
-
-@bot.message_handler(regexp='8')
-def KeyBoardBtn(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
-
-
-@bot.message_handler(regexp='9')
-def KeyBoartBtn(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
-
-
-@bot.message_handler(regexp='10')
-def KeyBoartBtn(message):
+def class_grade_keyboard():
     markup = types.ReplyKeyboardMarkup()
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
+    KeyBtnGrade_5 = types.KeyboardButton('5')
+    KeyBtnGrade_6 = types.KeyboardButton('6')
+    markup.add(KeyBtnGrade_5, KeyBtnGrade_6)
+    return markup
+
+@bot.message_handler(content_types='text')
+def class_letter(message):
+    bot.send_message(message.chat.id, 'выберите букву класса', reply_markup=class_letter_keyboard())
+    if message.text == 'а':
+        bot.register_next_step_handler(message, day(message))
+
+    elif message.text == 'б':
+        bot.register_next_step_handler(message, day(message))
+
+@bot.message_handler(content_types='text')
+def day(message):
+    bot.send_message(message.chat.id, 'выберите день недели', reply_markup=day_of_week())
 
 
-bot.polling()
+
+def day_of_week():
+    markup = types.ReplyKeyboardMarkup()
+    KeyBtnMonday = types.KeyboardButton('понедельник')
+    KeyBtnTuesday = types.KeyboardButton('вторник')
+    KeyBtnWednesday = types.KeyboardButton('среда')
+    KeyBtnThursday = types.KeyboardButton('четверг')
+    KeyBtnFriday = types.KeyboardButton('пятница')
+    markup.add(KeyBtnMonday, KeyBtnTuesday, KeyBtnWednesday, KeyBtnThursday, KeyBtnFriday)
+    return markup
+
+
+def class_letter_keyboard():
+    markup = types.ReplyKeyboardMarkup()
+    KeyBtnLetter_a = types.KeyboardButton('а')
+    KeyBtnLetter_b = types.KeyboardButton('б')
+    markup.add(KeyBtnLetter_a, KeyBtnLetter_b)
+    return markup
+
+
+
+
+
+
+
+bot.polling(none_stop=True)
