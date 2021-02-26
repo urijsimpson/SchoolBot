@@ -1,17 +1,10 @@
-import telebot
 import sys
 import logging
-from telebot import types
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from my_token import token, chat_id
 sMyToken = token
 
 import sqlite3
-from my_token import chat_id, token
-
-#bot = telebot.TeleBot(token)
-
-
 
 def create_conection(datafile):
     conn = None
@@ -53,7 +46,6 @@ class StringParser():
         self.conn = connection
         pass
 
-    #@classmethod
     def get_class(self, sString):
         try:
             if sString.split()[0].isdecimal() and int(sString.split()[0]) > 0 and int(sString.split()[0]) < 12:
@@ -69,18 +61,13 @@ class StringParser():
 
 
 
-    #@classmethod
     def get_dow(self, sString):
         return
 
-    #@classmethod
     def get_data(self, sString):
         lRecordList = []
         lRecordList.clear()
         try:
-            #print(sString.split()[1])
-            #print(sString.split()[2])
-            #print(sString.split()[3])
             if sString.split()[1].isdecimal():
                 if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
                     sClassName = f"{sString.split()[1]} {sString.split()[2]}"
