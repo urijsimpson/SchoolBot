@@ -122,7 +122,7 @@ class StringParser():
             if iExists == 0:
                 return [f"No timetable for {sClassName} to {sDow}"]
             else:
-                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and day_of_week = '{sDow}'")
+                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and upper(day_of_week) like upper( '{sDow}%')")
 
                 for record in c.fetchall():
                     lRecordList.append(record)
