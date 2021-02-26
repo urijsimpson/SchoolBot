@@ -207,6 +207,8 @@ for record in records:
 
 print('')
 
+
+
 @bot.message_handler(commands=['start'])
 def start(message):
     bot.send_message(message.chat.id, 'выберите класс', reply_markup=class_grade_keyboard())
@@ -268,10 +270,10 @@ def class_letter(message):
     elif message.text == 'ж':
         bot.register_next_step_handler(message, day(message))
 
+
 @bot.message_handler(content_types='text')
 def day(message):
     bot.send_message(message.chat.id, 'выберите день недели', reply_markup=day_of_week())
-
 
 
 def day_of_week():
@@ -336,7 +338,6 @@ def class_letter_keyboard(message):
         KeyBtnLetter_a = types.KeyboardButton('а')
         KeyBtnLetter_b = types.KeyboardButton('б')
         markup.add(KeyBtnLetter_a, KeyBtnLetter_b)
-
 
 
     return markup
