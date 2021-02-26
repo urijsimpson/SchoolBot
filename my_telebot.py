@@ -1,14 +1,10 @@
-import telebot
-import sys, io
-from telebot import types
-
+import sys
+import logging
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from my_token import token, chat_id
+sMyToken = token
 
 import sqlite3
-from my_token import token
-
-bot = telebot.TeleBot(token)
-
-
 
 def create_conection(datafile):
     conn = None
@@ -42,6 +38,67 @@ def get_records(conn, sSql):
         return c.fetchall()
     except sqlite3.DatabaseError as e:
         print(e)
+
+
+
+class StringParser():
+    def __init__(self, connection):
+        self.conn = connection
+        pass
+
+    def get_class(self, sString):
+        try:
+            if sString.split()[0].isdecimal() and int(sString.split()[0]) > 0 and int(sString.split()[0]) < 12:
+                sClassName = f"{sString.split()[0]} {sString.split()[1]}"
+                return sClassName
+            else:
+                return -1
+
+        except ValueError as err:
+            return -2
+        except OSError as err:
+            return -3
+
+
+
+    def get_dow(self, sString):
+        return
+
+    def get_data(self, sString):
+        lRecordList = []
+        lRecordList.clear()
+        try:
+            if sString.split()[1].isdecimal():
+                if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
+                    sClassName = f"{sString.split()[1]} {sString.split()[2]}"
+                else:
+                    return "Class grade must be between 1 - 11"
+            else:
+                return ["Wrong format"]
+            c = self.conn.cursor()
+            c.execute(f"select count(*) from v_timetable where class = '{sClassName}'")
+            iExists = int(c.fetchone()[0])
+            if iExists == 0:
+                return [f"Class {sClassName} doesn't exists in timetable"]
+            else:
+                sDow = sString.split()[3]
+
+            c.execute(f"select count(*) from  v_timetable where class = '{sClassName}' and upper(day_of_week) = upper('{sDow}')")
+
+            iExists = int(c.fetchone()[0])
+            if iExists == 0:
+                return [f"No timetable for {sClassName} to {sDow}"]
+            else:
+                c.execute(f"select lesson_index, class, subject, tutor  from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
+
+                for record in c.fetchall():
+                    lRecordList.append(record)
+                return lRecordList
+
+        except ValueError as err:
+            return ("ERROR", err)
+        except OSError as err:
+            return  ("ERROR", err)
 
 
 conn = create_conection("timetable.db")
@@ -150,7 +207,6 @@ def fill_tables(conn):
 '''
 Проверим, есть ли уже записи в БД
 '''
-#print(get_record(conn, 'select count(*) from classes'))
 iRecordCount = int(get_record(conn, 'select count(*) from classes'))
 if iRecordCount == 0:
     '''
@@ -191,161 +247,76 @@ for record in records:
 
 print('')
 
-'''
-Пример, как получить записи по определенному классу и дню недели из базы
-'''
-sClassName = '10 б'
-sDowName = 'Tuesday'
 
-print('****')
-print(f"Будут выбраны предметы для класса {sClassName} и дня недели {sDowName}")
-print('****')
-records = get_records(conn, f"select id, class, subject, tutor, lesson_index, day_of_week from v_timetable where class = '{sClassName}' and day_of_week = '{sDowName}'")
-for record in records:
-    if record:
-        print(record)
+# Enable logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, filename='telebot.log')
 
-print('')
+logger = logging.getLogger(__name__)
 
+# Define a few command handlers. These usually take the two arguments update and
+# context. Error handlers also receive the raised TelegramError object in error.
 
+def get(update, context):
+    """Send a message when the command /start is issued."""
+    myParser = StringParser(create_conection("timetable.db"))
+    tTimeTable = myParser.get_data(update.message.text)
+    sResultRecord = ''
+    if tTimeTable:
+        for sRecord in tTimeTable:
+            sCurentRecord, sCurentRecord = '',''
+            for sField in sRecord:
+                sCurentField = str(sField)
+                sCurentRecord = f"{sCurentRecord} {sCurentField}"
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.send_message(message.chat.id, 'выберите класс', reply_markup=class_grade_keyboard())
-    if message.text == '5':
-        bot.register_next_step_handler(message, class_letter(message))
+            update.message.reply_text(sCurentRecord)
 
-    elif message.text == '6':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '7':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '8':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '9':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '10':
-        bot.register_next_step_handler(message, class_letter(message))
-
-    elif message.text == '11':
-        bot.register_next_step_handler(message, class_letter(message))
-
-def class_grade_keyboard():
-    markup = types.ReplyKeyboardMarkup()
-    KeyBtnGrade_5 = types.KeyboardButton('5')
-    KeyBtnGrade_6 = types.KeyboardButton('6')
-    KeyBtnGrade_7 = types.KeyboardButton('7')
-    KeyBtnGrade_8 = types.KeyboardButton('8')
-    KeyBtnGrade_9 = types.KeyboardButton('9')
-    KeyBtnGrade_10 = types.KeyboardButton('10')
-    KeyBtnGrade_11 = types.KeyboardButton('11')
-    markup.add(KeyBtnGrade_5, KeyBtnGrade_6, KeyBtnGrade_7, KeyBtnGrade_8, KeyBtnGrade_9, KeyBtnGrade_10, KeyBtnGrade_11)
-
-    return markup
-
-@bot.message_handler(content_types='text')
-def class_letter(message):
-    bot.send_message(message.chat.id, 'выберите букву класса', reply_markup=class_letter_keyboard(message))
-    if message.text == 'а':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'б':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'в':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'г':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'д':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'е':
-        bot.register_next_step_handler(message, day(message))
-
-    elif message.text == 'ж':
-        bot.register_next_step_handler(message, day(message))
+def help(update, context):
+    """Send a message when the command /help is issued."""
+    print("Received HELP query")
+    update.message.reply_text('/get <N> <L> where N - class grade L - class letter')
 
 
-@bot.message_handler(content_types='text')
-def day(message):
-    bot.send_message(message.chat.id, 'выберите день недели', reply_markup=day_of_week())
+def echo(update, context):
+    """Echo the user message."""
+    update.message.reply_text(update.message.text)
+
+def error(update, context):
+    """Log Errors caused by Updates."""
+    logger.warning('Update "%s" caused error "%s"', update, context.error)
+
+def author(update, context):
+    sMessage = 'Jury A Kondratyev'
+    update.message.reply_text(sMessage)
+
+def main():
+    """Start the bot."""
+    # Create the Updater and pass it your bot's token.
+    # Make sure to set use_context=True to use the new context based callbacks
+    # Post version 12 this will no longer be necessary
+    token = sMyToken
+    updater = Updater(token, use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # on different commands - answer in Telegram
+    dp.add_handler(CommandHandler("get", get))
+    dp.add_handler(CommandHandler("help", help))
+
+    # on noncommand i.e message - echo the message on Telegram
+    dp.add_handler(MessageHandler(Filters.text, echo))
+
+    # log all errors
+    dp.add_error_handler(error)
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 
-def day_of_week():
-    markup = types.ReplyKeyboardMarkup()
-    KeyBtnMonday = types.KeyboardButton('понедельник')
-    KeyBtnTuesday = types.KeyboardButton('вторник')
-    KeyBtnWednesday = types.KeyboardButton('среда')
-    KeyBtnThursday = types.KeyboardButton('четверг')
-    KeyBtnFriday = types.KeyboardButton('пятница')
-    markup.add(KeyBtnMonday, KeyBtnTuesday, KeyBtnWednesday, KeyBtnThursday, KeyBtnFriday)
-
-    return markup
-
-
-def class_letter_keyboard(message):
-    markup = types.ReplyKeyboardMarkup()
-    if message.text == '5':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        KeyBtnLetter_d = types.KeyboardButton('д')
-        KeyBtnLetter_e = types.KeyboardButton('е')
-        KeyBtnLetter_j = types.KeyboardButton('ж')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g, KeyBtnLetter_d, KeyBtnLetter_e, KeyBtnLetter_j)
-
-    elif message.text == '6':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        KeyBtnLetter_d = types.KeyboardButton('д')
-        KeyBtnLetter_e = types.KeyboardButton('е')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g, KeyBtnLetter_d, KeyBtnLetter_e)
-
-    elif message.text == '7':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '8':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        KeyBtnLetter_g = types.KeyboardButton('г')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v, KeyBtnLetter_g)
-
-    elif message.text == '9':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '10':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        KeyBtnLetter_v = types.KeyboardButton('в')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b, KeyBtnLetter_v)
-
-    elif message.text == '11':
-        KeyBtnLetter_a = types.KeyboardButton('а')
-        KeyBtnLetter_b = types.KeyboardButton('б')
-        markup.add(KeyBtnLetter_a, KeyBtnLetter_b)
-
-
-    return markup
-
-
-
-
-
-
-
-bot.polling(none_stop=True)
+if __name__ == '__main__':
+    main()
