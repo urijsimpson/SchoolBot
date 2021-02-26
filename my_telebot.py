@@ -269,8 +269,6 @@ def get(update, context):
                 sCurentRecord = f"{sCurentRecord} {sCurentField}"
 
             update.message.reply_text(sCurentRecord)
-    #print(context.args)
-
 
 def help(update, context):
     """Send a message when the command /help is issued."""
