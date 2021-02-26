@@ -1,6 +1,8 @@
 import sys
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram import ParseMode, Update
+
 from my_token import token, chat_id
 sMyToken = token
 
@@ -72,7 +74,7 @@ class StringParser():
                 if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
                     sClassName = f"{sString.split()[1]} {sString.split()[2]}"
                 else:
-                    return "Class grade must be between 1 - 11"
+                    return ["Class grade must be between 1 - 11"]
             else:
                 return ["Wrong format"]
             c = self.conn.cursor()
@@ -263,12 +265,17 @@ def get(update, context):
     sResultRecord = ''
     if tTimeTable:
         for sRecord in tTimeTable:
-            sCurentRecord, sCurentRecord = '',''
+            sCurentRecord, sCurentRecord = '', ''
+            cCnt = 0
             for sField in sRecord:
+                cCnt = cCnt + 1
                 sCurentField = str(sField)
-                sCurentRecord = f"{sCurentRecord} {sCurentField}"
+                if cCnt == 1:
+                    sCurentRecord = f"<b>{sCurentRecord} {sCurentField} </b>"
+                else:
+                    sCurentRecord = f"{sCurentRecord} {sCurentField} "
 
-            update.message.reply_text(sCurentRecord)
+            update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
 
 def help(update, context):
     """Send a message when the command /help is issued."""
@@ -285,8 +292,14 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def author(update, context):
-    sMessage = 'Jury A Kondratyev'
-    update.message.reply_text(sMessage)
+    sMessage = '<b>Jury A Kondratyev</b>'
+    update.message.reply_text(sMessage, parse_mode=ParseMode.HTML)
+
+
+
+#def test(update, context):
+#    sMessage = 'Jury A Kondratyev'
+#    update.message.reply_text(sMessage)
 
 def main():
     """Start the bot."""
@@ -296,12 +309,15 @@ def main():
     token = sMyToken
     updater = Updater(token, use_context=True)
 
+
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
+
 
     # on different commands - answer in Telegram
     dp.add_handler(CommandHandler("get", get))
     dp.add_handler(CommandHandler("help", help))
+    dp.add_handler(CommandHandler("author", help))
 
     # on noncommand i.e message - echo the message on Telegram
     dp.add_handler(MessageHandler(Filters.text, echo))
