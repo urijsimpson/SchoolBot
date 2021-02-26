@@ -296,11 +296,6 @@ def author(update, context):
     update.message.reply_text(sMessage, parse_mode=ParseMode.HTML)
 
 
-
-#def test(update, context):
-#    sMessage = 'Jury A Kondratyev'
-#    update.message.reply_text(sMessage)
-
 def main():
     """Start the bot."""
     # Create the Updater and pass it your bot's token.
