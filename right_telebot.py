@@ -320,6 +320,12 @@ def main():
     # log all errors
     dp.add_error_handler(error)
 
+    # set commands
+    updater.bot.set_my_commands([
+        ('author', 'Show Author'),
+        ('get', 'Get grade to class, for ex: 10 a tuesday - show timetable for 10 a on tuesday'),
+        ('help', 'Shows HELP'),
+    ])
     # Start the Bot
     updater.start_polling()
 
@@ -328,12 +334,7 @@ def main():
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
-    # set commands
-    updater.bot.set_my_commands([
-        ('author', 'Show Author'),
-        ('get', 'Get grade to class, for ex: 10 a tuesday - show timetable for 10 a on tuesday'),
-        ('help', 'Shows HELP'),
-    ])
+
 
 if __name__ == '__main__':
     main()
