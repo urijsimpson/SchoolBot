@@ -85,7 +85,7 @@ class StringParser():
             else:
                 sDow = sString.split()[3]
 
-            c.execute(f"select count(*) from  v_timetable where class = '{sClassName}' and upper(day_of_week) = upper('{sDow}')")
+            c.execute(f"select count(*) from  v_timetable where class = '{sClassName}' and upper(day_of_week) like upper('{sDow}%')")
 
             iExists = int(c.fetchone()[0])
             if iExists == 0:
@@ -263,7 +263,7 @@ def get(update, context):
     myParser = StringParser(create_conection("timetable.db"))
     tTimeTable = myParser.get_data(update.message.text)
     sResultRecord = ''
-    if tTimeTable:
+    if tTimeTable and len(tTimeTable) > 1:
         for sRecord in tTimeTable:
             sCurentRecord, sCurentRecord = '', ''
             cCnt = 0
@@ -274,8 +274,12 @@ def get(update, context):
                     sCurentRecord = f"<b>{sCurentRecord} {sCurentField} </b>"
                 else:
                     sCurentRecord = f"{sCurentRecord} {sCurentField} "
-
             update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
+    else:
+        sCurentRecord = f"<b>{tTimeTable[0]}</b>"
+        update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
+
+
 
 def start(update, context):
     """Send a message when the command /start is issued."""
