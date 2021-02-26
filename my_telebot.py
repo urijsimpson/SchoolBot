@@ -260,51 +260,6 @@ for record in records:
 
 print('')
 
-'''
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, 'to continue type \'keyboard\'')
-
-
-@bot.message_handler(commands=['keyboard'])
-def KeyBoardWelc(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('10')
-    button2 = types.KeyboardButton('9')
-    button3 = types.KeyboardButton('8')
-    markup.add(button1, button2, button3)
-    bot.send_message(chat_id, 'select class digit', reply_markup=markup)
-
-
-@bot.message_handler(regexp='8')
-def KeyBoardBtn(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
-
-
-@bot.message_handler(regexp='9')
-def KeyBoartBtn(message):
-    markup = types.ReplyKeyboardMarkup(row_width=2)
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
-
-
-@bot.message_handler(regexp='10')
-def KeyBoartBtn(message):
-    markup = types.ReplyKeyboardMarkup()
-    button1 = types.KeyboardButton('V')
-    button2 = types.KeyboardButton('B')
-    markup.add(button1, button2)
-    bot.send_message(chat_id, 'select class letter', reply_markup=markup)
-
-
-bot.polling()
-'''
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO, filename='telebot.log')
