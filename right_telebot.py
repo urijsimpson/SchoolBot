@@ -81,9 +81,12 @@ class StringParser():
 
     def get_class(self, sString):
         try:
-            if sString.split()[0].isdecimal() and int(sString.split()[0]) > 0 and int(sString.split()[0]) < 12:
-                sClassName = f"{sString.split()[0]} {sString.split()[1]}"
-                return sClassName
+            if sString.split()[1].isdecimal():
+                if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
+                    sClassName = f"{sString.split()[0]} {sString.split()[1]}"
+                    return sClassName
+                else:
+                    return f"Therea are non class {sString.split()[1]} here"
             else:
                 return -1
 
@@ -101,9 +104,13 @@ class StringParser():
         lRecordList = []
         lRecordList.clear()
         try:
-            if sString.split()[1].isdecimal():
-                if int(sString.split()[1]) > 0 and int(sString.split()[1]) < 12:
-                    sClassName = f"{sString.split()[1]} {sString.split()[2]}"
+            if sString.split()[0] == '/get':
+                iIndex = 1
+            else:
+                iIndex = 0
+            if sString.split()[iIndex].isdecimal():
+                if int(sString.split()[iIndex]) > 0 and int(sString.split()[iIndex]) < 12:
+                    sClassName = f"{sString.split()[iIndex]} {sString.split()[iIndex + 1]}"
                 else:
                     return ["Class grade must be between 1 - 11"]
             else:
@@ -114,7 +121,7 @@ class StringParser():
             if iExists == 0:
                 return [f"Class {sClassName} doesn't exists in timetable"]
             else:
-                sDow = sString.split()[3]
+                sDow = sString.split()[iIndex + 2]
 
             c.execute(f"select count(*) from  v_timetable where class = '{sClassName}' and upper(day_of_week) like upper('{sDow}%')")
 
@@ -294,7 +301,26 @@ def help(update, context):
 
 def echo(update, context):
     """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    myParser = StringParser(create_conection("timetable.db"))
+    tTimeTable = myParser.get_data(update.message.text)
+    sResultRecord = ''
+    if tTimeTable and len(tTimeTable) > 1:
+        for sRecord in tTimeTable:
+            sCurentRecord, sCurentRecord = '', ''
+            cCnt = 0
+            for sField in sRecord:
+                cCnt = cCnt + 1
+                sCurentField = str(sField)
+                if cCnt == 1:
+                    sCurentRecord = f"<b>{sCurentRecord} {sCurentField} </b>"
+                else:
+                    sCurentRecord = f"{sCurentRecord} {sCurentField} "
+            update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
+    else:
+        sCurentRecord = f"<b>{tTimeTable[0]}</b>"
+        update.message.reply_text(sCurentRecord, parse_mode=ParseMode.HTML)
+
+    #update.message.reply_text(update.message.text)
 
 def error(update, context):
     """Log Errors caused by Updates."""
