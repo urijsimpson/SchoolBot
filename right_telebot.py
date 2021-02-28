@@ -296,7 +296,7 @@ def start(update, context):
 def help(update, context):
     """Send a message when the command /help is issued."""
     print("Received HELP query")
-    update.message.reply_text('/get <N> <L> where N - class grade L - class letter')
+    update.message.reply_text('/get <N> <L> where N - class grade L - class letter Or just print someting like 10 а mon')
 
 
 def echo(update, context):
