@@ -2,7 +2,7 @@ import telebot
 from telebot import types
 from my_token import token
 
-bot = telebot.Telebot(token)
+bot = telebot.TeleBot(token)
 
 @bot.message_handler(commands=["start"])
 def welcome_handler(message):
@@ -18,7 +18,7 @@ def grade_board():
     markup.add(btn1, btn2, btn3)
     return markup
 
-def letter_board(index):
+def letter_board():
     markup = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text="a", callback_data="а")
     btn2 = types.InlineKeyboardButton(text="b", callback_data="б")
@@ -31,11 +31,24 @@ def choose_grade(call):
     msg = call.data
     for ClGr in lGradeList:
         if int(msg) == ClGr:
-            index = ClGr
-            print(f"index: {index}")
-            return letter_board(index)
+            global gr_index
+            gr_index = ClGr
+            print(f"index: {gr_index}")
+            bot.edit_message_text(chat_id=call.message.chat.id,
+                                  message_id=call.message.message_id,
+                                  text="enter the letter", reply_markup=letter_board())
         else:
             print("wrong")
+            lLetterList = ["а", "б", "в", "г", "д", "е", "ж"]
+            iterNum = 0
+            for ClLet in lLetterList:
+                iterNum += 1
+                if msg == ClLet:
+                    global let_index
+                    let_index = iterNum
+                    print(f"index: {let_index}")
+
+
 
 
 bot.polling()
