@@ -1,8 +1,7 @@
 import telebot
 from telebot import types
-from my_token import token
 
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot("1639481970:AAHwStqKHlRDWv7UHZYEjEGNIKADcvIsv-s")
 
 @bot.message_handler(commands=["start"])
 def welcome_handler(message):
@@ -27,27 +26,37 @@ def letter_board():
 
 @bot.callback_query_handler(func=lambda call: True)
 def choose_grade(call):
-    lGradeList = [10, 9, 8, 7, 6]
+    lGradeList = ["10", "9", "8", "7"]
     msg = call.data
+    lClass = []
     for ClGr in lGradeList:
-        if int(msg) == ClGr:
-            global gr_index
-            gr_index = ClGr
-            print(f"index: {gr_index}")
+        if msg == ClGr:
+            grade = ClGr
+            # print(f"index: {grade}")
             bot.edit_message_text(chat_id=call.message.chat.id,
                                   message_id=call.message.message_id,
                                   text="enter the letter", reply_markup=letter_board())
-        else:
-            print("wrong")
-            lLetterList = ["а", "б", "в", "г", "д", "е", "ж"]
-            iterNum = 0
-            for ClLet in lLetterList:
-                iterNum += 1
-                if msg == ClLet:
-                    global let_index
-                    let_index = iterNum
-                    print(f"index: {let_index}")
+            lClass.append(grade)
+            # final_class(grade)
 
+    lLetterList = ["а", "б", "в", "г", "д", "е", "ж"]
+    iterNum = 0
+    for ClLet in lLetterList:
+        # iterNum += 1
+        if msg == ClLet:
+            letter = ClLet
+            # print(f"index: {letter}")
+            lClass.append(letter)
+            # final_class(letter)
+
+    for i in lClass:
+        print(i)
+
+# def final_class(cl):
+#     lFinalClass = []
+#     lFinalClass.append(cl)
+#     # if len(lFinalClass) > 1:
+#     print(lFinalClass.reverse())
 
 
 
