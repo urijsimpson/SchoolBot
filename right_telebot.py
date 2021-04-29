@@ -31,7 +31,7 @@ print('')
 
 import sys
 import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext,CallbackQueryHandler
 from telegram import ParseMode, Update
 
 from my_token import token, chat_id
@@ -64,13 +64,13 @@ def get_record(conn, sSql):
     except sqlite3.DatabaseError as e:
         print(e)
 
-def get_records(conn, sSql):
-    try:
-        c = conn.cursor()
-        c.execute(sSql)
-        return c.fetchall()
-    except sqlite3.DatabaseError as e:
-        print(e)
+# def get_records(conn, sSql):
+#     try:
+#         c = conn.cursor()
+#         c.execute(sSql)
+#         return c.fetchall()
+#     except sqlite3.DatabaseError as e:
+#         print(e)
 
 
 
