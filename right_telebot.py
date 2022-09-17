@@ -33,8 +33,7 @@ import sys
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext,CallbackQueryHandler
 from telegram import ParseMode, Update
-
-from my_token import token, chat_id
+from mytoken import token, chat_id
 sMyToken = token
 
 import sqlite3
